@@ -1273,6 +1273,9 @@ typedef enum
     WAR_STATE_COUNT
 } WarStateType;
 
+/**
+ * The WarState is an activity that an Entity can do - mine, walk, fight, build units...
+ */
 typedef struct _WarState
 {
     WarStateType type;
@@ -1500,6 +1503,10 @@ typedef struct
     WarTreeList trees;
 } WarForestComponent;
 
+/**
+ * The StateMachine keeps track of the state of an entity, and what it needs
+ * to do to enter/leave that state.
+ */
 typedef struct
 {
     bool enabled;
@@ -1831,6 +1838,10 @@ typedef struct
 typedef void (*WarRenderFunc)(struct _WarContext* context, struct _WarEntity* entity);
 typedef s32 (*WarRenderCompareFunc)(const struct _WarEntity* e1, const struct _WarEntity* e2);
 
+/**
+ * An Entity is pretty much anything and everything that sits on top of the bare map -
+ * units, buildings, trees, roads, arrows, spells...
+ */
 typedef struct _WarEntity
 {
     bool enabled;
