@@ -11,3 +11,7 @@ callgrind*
 assets/*.WAR
 .vscode-ctags
 .markdownlint.json
+.cproject
+.project
+.settings
+DATA.WAR
