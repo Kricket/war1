@@ -392,18 +392,18 @@ void wpStartAction(WPGameState* gameState, const WPAction* action)
 
     for (s32 i = 0; i < WP_RESOURCE_TYPE_COUNT; i++)
     {
-        assert(gameState->resources[i] >= metadata.require[i]);
+        if(gameState->resources[i] < metadata.require[i]) return;
     }
 
     for (s32 i = 0; i < WP_RESOURCE_TYPE_COUNT; i++)
     {
-        assert(gameState->resources[i] >= metadata.borrow[i]);
+        if(gameState->resources[i] < metadata.borrow[i]) return;
         gameState->resources[i] -= metadata.borrow[i];
     }
 
     for (s32 i = 0; i < WP_RESOURCE_TYPE_COUNT; i++)
     {
-        assert(gameState->resources[i] >= metadata.consume[i]);
+        if(gameState->resources[i] >= metadata.consume[i]) return;
         gameState->resources[i] -= metadata.consume[i];
     }
 }
@@ -564,30 +564,45 @@ void wpSimplifyPlan(const WPPlan* plan, WPPlan* simplifiedPlan)
     }
 }
 
+bool wpImpossibleToGetResource(const WPGameState* gameState, WPResourceType neededResource)
+{
+    // If we have no town hall and no peasants, then we can't get more peasants or TH
+    if(neededResource == WP_RESOURCE_TYPE_TOWNHALL || neededResource == WP_RESOURCE_TYPE_PEASANT_PEON)
+    {
+        if(
+                gameState->resources[WP_RESOURCE_TYPE_PEASANT_PEON] == 0 &&
+                gameState->resources[WP_RESOURCE_TYPE_TOWNHALL] == 0
+        ) return true;
+    }
+
+    return false;
+}
+
 void wpMEA(WPGameState* gameState, const WPGoal* goal, WPPlan* plan)
 {
-    if (wpSatisfyGoal(gameState, goal))
-        return;
+    if (wpSatisfyGoal(gameState, goal)) return;
 
-    WPResourceType resource;
-    u32 want;
+    WPResourceType neededResource;
+    u32 neededResourceAmount;
     for (s32 i = 0; i < WP_RESOURCE_TYPE_COUNT; i++)
     {
         if (gameState->resources[i] < goal->resources[i])
         {
-            resource = (WPResourceType)i;
-            want = goal->resources[i];
+            neededResource = (WPResourceType)i;
+            neededResourceAmount = goal->resources[i];
             break;
         }
     }
 
-    assert(resource >= WP_RESOURCE_TYPE_GOLD && resource < WP_RESOURCE_TYPE_COUNT);
-    assert(want > 0);
+    assert(neededResource >= WP_RESOURCE_TYPE_GOLD && neededResource < WP_RESOURCE_TYPE_COUNT);
+    assert(neededResourceAmount > 0);
 
-    WPActionMetadata action = wpGetActionMetadataThatProduces(resource);
-    u32 have = gameState->resources[resource];
-    u32 produces = action.produce[resource];
-    u32 repeat = (u32)ceil((want - have) / (f64)produces);
+    if (wpImpossibleToGetResource(gameState, neededResource)) return;
+
+    WPActionMetadata action = wpGetActionMetadataThatProduces(neededResource);
+    u32 have = gameState->resources[neededResource];
+    u32 produces = action.produce[neededResource];
+    u32 repeat = (u32)ceil((neededResourceAmount - have) / (f64)produces);
 
     WPGoal preGoal = wpCreateGoalFromAction(&action, repeat);
     wpMEA(gameState, &preGoal, plan);
