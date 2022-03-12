@@ -1,4 +1,29 @@
-#!/bin/sh
+#!/bin/bash
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -d|--debug)
+      DebugFlags="-g -D __DEBUG__"
+      shift
+      ;;
+    -p|--profiler)
+      ProfilerFlags="-pg"
+      shift
+      ;;
+    -o|--optimize)
+      OptimizeFlags="-O2"
+      shift
+      ;;
+    -a|--assembly)
+      AssemblyFlags="-g -Wa,-ahl"
+      shift
+      ;;
+    -*|--*)
+      echo "Unknown option $1"
+      exit 1
+      ;;
+  esac
+done
 
 # Output path (relative to build sh file)
 OutputPath="./build/linux64"
@@ -12,11 +37,6 @@ IncludePath="../../deps/include"
 # Lib path (relative to output folder)
 LibPath="../../deps/lib/linux64"
 
-# Compiler flags
-# ProfilerFlags="-pg"
-# OptimizeFlags="-O2"
-# AssemblyFlags="-g -Wa,-ahl"
-# DebugFlags="-g -D __DEBUG__"
 # Allow the war1 binary to run via clicking in file browser="-no-pie" https://bugzilla.gnome.org/show_bug.cgi?id=737849
 CommonCompilerFlags="-std=c99 -Wall -x c $ProfilerFlags $OptimizeFlags $AssemblyFlags $DebugFlags -I $IncludePath"
 CommonLinkerFlags="-L $LibPath -lglfw -lpthread -lm -ldl -no-pie"
@@ -30,7 +50,9 @@ cd $OutputPath
 rm -f *
 
 # Compile the project
-if gcc $CommonCompilerFlags ../../src/war1.c ../../deps/include/glad/glad.c -o war1 $CommonLinkerFlags; then
+AllGCCArgs="$CommonCompilerFlags ../../src/war1.c ../../deps/include/glad/glad.c -o war1 $CommonLinkerFlags"
+echo "gcc $AllGCCArgs"
+if gcc $AllGCCArgs; then
 
 # Copy assets
 
