@@ -198,13 +198,11 @@ bool executeUICommand(WarContext* context)
     WarPlayerInfo* player = &map->players[0];
     WarUICommand* uiCommand = &map->uiCommand;
 
-    if (uiCommand->type == WAR_UI_COMMAND_NONE)
-    {
-        return false;
-    }
-
     switch (uiCommand->type)
     {
+    	case WAR_UI_COMMAND_NONE:
+    		return false;
+
         case WAR_UI_COMMAND_MOVE:
         {
             if (!wasButtonPressed(input, WAR_MOUSE_LEFT))
@@ -226,7 +224,7 @@ bool executeUICommand(WarContext* context)
                 uiCommand->type = WAR_UI_COMMAND_NONE;
                 return true;
             }
-        }
+        } break;
 
         case WAR_UI_COMMAND_STOP:
         {
@@ -234,7 +232,7 @@ bool executeUICommand(WarContext* context)
 
             uiCommand->type = WAR_UI_COMMAND_NONE;
             return true;
-        }
+        } break;
 
         case WAR_UI_COMMAND_GATHER:
         {
@@ -291,7 +289,7 @@ bool executeUICommand(WarContext* context)
                 uiCommand->type = WAR_UI_COMMAND_NONE;
                 return true;
             }
-        }
+        } break;
 
         case WAR_UI_COMMAND_DELIVER:
         {
@@ -299,7 +297,7 @@ bool executeUICommand(WarContext* context)
 
             uiCommand->type = WAR_UI_COMMAND_NONE;
             return true;
-        }
+        } break;
 
         case WAR_UI_COMMAND_REPAIR:
         {
@@ -326,7 +324,7 @@ bool executeUICommand(WarContext* context)
                 uiCommand->type = WAR_UI_COMMAND_NONE;
                 return true;
             }
-        }
+        } break;
 
         case WAR_UI_COMMAND_ATTACK:
         {
@@ -371,7 +369,7 @@ bool executeUICommand(WarContext* context)
                 uiCommand->type = WAR_UI_COMMAND_NONE;
                 return true;
             }
-        }
+        } break;
 
         case WAR_UI_COMMAND_TRAIN_FOOTMAN:
         case WAR_UI_COMMAND_TRAIN_GRUNT:
@@ -401,7 +399,7 @@ bool executeUICommand(WarContext* context)
 
             uiCommand->type = WAR_UI_COMMAND_NONE;
             return true;
-        }
+        } break;
 
         case WAR_UI_COMMAND_UPGRADE_SWORDS:
         case WAR_UI_COMMAND_UPGRADE_AXES:
@@ -439,7 +437,7 @@ bool executeUICommand(WarContext* context)
 
             uiCommand->type = WAR_UI_COMMAND_NONE;
             return true;
-        }
+        } break;
 
         case WAR_UI_COMMAND_BUILD_FARM_HUMANS:
         case WAR_UI_COMMAND_BUILD_FARM_ORCS:
@@ -496,7 +494,7 @@ bool executeUICommand(WarContext* context)
 
                 return true;
             }
-        }
+        } break;
 
         case WAR_UI_COMMAND_BUILD_WALL:
         {
@@ -524,7 +522,7 @@ bool executeUICommand(WarContext* context)
 
                 return true;
             }
-        }
+        } break;
 
         case WAR_UI_COMMAND_BUILD_ROAD:
         {
@@ -552,7 +550,7 @@ bool executeUICommand(WarContext* context)
 
                 return true;
             }
-        }
+        } break;
 
         case WAR_UI_COMMAND_SUMMON_SPIDER:
         case WAR_UI_COMMAND_SUMMON_SCORPION:
@@ -565,7 +563,7 @@ bool executeUICommand(WarContext* context)
 
             uiCommand->type = WAR_UI_COMMAND_NONE;
             return true;
-        }
+        } break;
 
         case WAR_UI_COMMAND_SPELL_RAIN_OF_FIRE:
         case WAR_UI_COMMAND_SPELL_POISON_CLOUD:
@@ -606,22 +604,16 @@ bool executeUICommand(WarContext* context)
                 uiCommand->type = WAR_UI_COMMAND_NONE;
                 return true;
             }
-
-            break;
-        }
+        } break;
 
         case WAR_UI_COMMAND_BUILD_BASIC:
         case WAR_UI_COMMAND_BUILD_ADVANCED:
-        {
             // do nothing here
             break;
-        }
 
         default:
-        {
             logError("Not implemented command: %d\n", uiCommand->type);
             return false;
-        }
     }
 
     return false;
