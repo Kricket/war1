@@ -35,7 +35,7 @@
 // #define DEBUG_RENDER_FONT
 // #define DEBUG_RENDER_PROJECTILES
 
-#define DATAWAR_FILE_PATH "./DATA.WAR"
+#define DATAWAR_FILE_PATH "../../DATA.WAR"
 #define ONLINE_DEMO_DATAWAR_FILE_URL "http://ia801608.us.archive.org/view_archive.php?archive=/11/items/WarcraftOrcsHumansDemo/WCRFT.ZIP&file=DEMODATA%2FDATA.WAR"
 
 #define isButtonPressed(input, btn) (input->buttons[btn].pressed)
