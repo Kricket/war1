@@ -973,7 +973,7 @@ void renderImage(WarContext* context, WarEntity* entity)
         }
 
         nvgTranslate(gfx, transform.position.x, transform.position.y);
-        renderSprite(context, sprite->sprite, VEC2_ZERO, VEC2_ONE);
+        renderSprite(context, sprite->sprite, VEC2_ZERO, transform.scale);
         nvgRestore(gfx);
     }
 }
@@ -1580,7 +1580,12 @@ void renderMinimap(WarContext* context, WarEntity* entity)
 
     // render viewport
     nvgTranslate(gfx, map->viewport.x * MINIMAP_MAP_WIDTH_RATIO, map->viewport.y * MINIMAP_MAP_HEIGHT_RATIO);
-    nvgStrokeRect(gfx, recti(0, 0, MINIMAP_VIEWPORT_WIDTH, MINIMAP_VIEWPORT_HEIGHT), NVG_WHITE, 1.0f/context->globalScale);
+    nvgStrokeRect(
+            gfx,
+            recti(0, 0, map->mapPanel.width * MINIMAP_MAP_WIDTH_RATIO, map->mapPanel.height * MINIMAP_MAP_HEIGHT_RATIO),
+            NVG_WHITE,
+            1.0f/context->globalScale
+    );
 
     nvgRestore(gfx);
 }

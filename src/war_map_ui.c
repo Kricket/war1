@@ -34,20 +34,20 @@ void createMapUI(WarContext* context)
     createUIMinimap(context, "minimap", minimapPanel);
 
     // top panel images
-    createUIImage(context, "imgGold", imageResourceRef(406), vec2Addv(topPanel, vec2i(201, 1)));
-    createUIImage(context, "imgLumber", imageResourceRef(407), vec2Addv(topPanel, vec2i(102, 0)));
+//    createUIImage(context, "imgGold", imageResourceRef(406), vec2Addv(topPanel, vec2i(201, 1)));
+//    createUIImage(context, "imgLumber", imageResourceRef(407), vec2Addv(topPanel, vec2i(102, 0)));
 
     // top panel texts
-    createUIText(context, "txtGold", 0, 6, NULL, vec2Addv(topPanel, vec2i(135, 2)));
-    createUIText(context, "txtWood", 0, 6, NULL, vec2Addv(topPanel, vec2i(24, 2)));
+    createUIText(context, "txtGold", 0, 6, NULL, vec2i(GOLD_TXT_ORIG_X, 2));
+    createUIText(context, "txtWood", 0, 6, NULL, vec2i(LUMBER_TXT_ORIG_X, 2));
 
     // status text
-    createUIText(context, "txtStatus", 0, 6, NULL, vec2Addv(bottomPanel, vec2i(2, 5)));
-    createUIImage(context, "imgStatusWood", imageResourceRef(407), vec2Addv(bottomPanel, vec2i(163, 3)));
-    createUIImage(context, "imgStatusGold", imageResourceRef(406), vec2Addv(bottomPanel, vec2i(200, 5)));
-    createUIText(context, "txtStatusWood", 0, 6, NULL, vec2Addv(bottomPanel, vec2i(179, 5)));
-    createUIText(context, "txtStatusGold", 0, 6, NULL, vec2Addv(bottomPanel, vec2i(218, 5)));
+    createUIText(context, "txtStatus", 0, 6, NULL, vec2Addv(bottomPanel, vec2i(2, BOT_TXT_Y_OFF_FROM_PANEL)));
     createUIRect(context, "txtStatusCursor", vec2Addv(bottomPanel, vec2i(2, 4)), vec2i(1, 7), U8COLOR_WHITE);
+    createUIText(context, "txtStatusWood", 0, 6, NULL, vec2Addv(bottomPanel, vec2i(179, BOT_TXT_Y_OFF_FROM_PANEL)));
+    createUIText(context, "txtStatusGold", 0, 6, NULL, vec2Addv(bottomPanel, vec2i(218, BOT_TXT_Y_OFF_FROM_PANEL)));
+    createUIImage(context, "imgStatusWood", imageResourceRef(407), vec2Addv(bottomPanel, vec2i(163, BOT_ISW_Y_OFF_FROM_PANEL)));
+    createUIImage(context, "imgStatusGold", imageResourceRef(406), vec2Addv(bottomPanel, vec2i(200, BOT_TXT_Y_OFF_FROM_PANEL)));
 
     uiEntity = createUIText(context, "txtCheatFeedbackText", 1, 8, NULL, vec2Addv(bottomPanel, vec2i(15, -20)));
     setUITextColor(uiEntity, U8COLOR_YELLOW);

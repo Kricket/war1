@@ -99,7 +99,7 @@ vec2 vec2MinimapToViewportCoordinates(WarContext* context, vec2 v)
     rect minimapPanel = map->minimapPanel;
     vec2 minimapPanelSize = vec2f(minimapPanel.width, minimapPanel.height);
 
-    vec2 minimapViewportSize = vec2f(MINIMAP_VIEWPORT_WIDTH, MINIMAP_VIEWPORT_HEIGHT);
+    vec2 minimapViewportSize = vec2f(map->mapPanel.width * MINIMAP_MAP_WIDTH_RATIO, map->mapPanel.height * MINIMAP_MAP_HEIGHT_RATIO);
 
     v = vec2Translatef(v, -minimapViewportSize.x / 2, -minimapViewportSize.y / 2);
     v = vec2Clampv(v, VEC2_ZERO, vec2Subv(minimapPanelSize, minimapViewportSize));
@@ -507,6 +507,9 @@ void freeMap(WarContext* context, WarMap* map)
 
 void enterMap(WarContext* context)
 {
+    // Reset the sizes of everything
+    updateGlobalScale(context);
+
     WarMap* map = context->map;
 
     s32 levelInfoIndex = map->levelInfoIndex;
@@ -528,24 +531,17 @@ void enterMap(WarContext* context)
     map->objectivesTime = 1;
     map->playersCount = 2;
 
-    map->settings.gameSpeed = WAR_SPEED_NORMAL;
-    map->settings.mouseScrollSpeed = WAR_SPEED_NORMAL;
-    map->settings.keyScrollSpeed = WAR_SPEED_NORMAL;
-
-    map->leftTopPanel = recti(0, 0, 72, 72);
-    map->leftBottomPanel = recti(0, 72, 72, 128);
-    map->rightPanel = recti(312, 0, 8, 200);
-    map->topPanel = recti(72, 0, 240, 12);
-    map->bottomPanel = recti(72, 188, 240, 12);
-    map->mapPanel = recti(72, 12, MAP_VIEWPORT_WIDTH, MAP_VIEWPORT_HEIGHT);
-    map->minimapPanel = recti(3, 6, MINIMAP_WIDTH, MINIMAP_HEIGHT);
     map->menuPanel = recti(84, 32, 152, 136);
     map->messagePanel = recti(17, 76, 286, 48);
     map->saveLoadPanel = recti(48, 27, 223, 146);
 
+    map->settings.gameSpeed = WAR_SPEED_NORMAL;
+    map->settings.mouseScrollSpeed = WAR_SPEED_NORMAL;
+    map->settings.keyScrollSpeed = WAR_SPEED_NORMAL;
+
     s32 startX = levelInfo->levelInfo.startX * MEGA_TILE_WIDTH;
     s32 startY = levelInfo->levelInfo.startY * MEGA_TILE_HEIGHT;
-    map->viewport = recti(startX, startY, MAP_VIEWPORT_WIDTH, MAP_VIEWPORT_HEIGHT);
+    map->viewport = recti(startX, startY, map->mapPanel.width, map->mapPanel.height);
 
     map->finder = initPathFinder(PATH_FINDING_ASTAR, MAP_TILES_WIDTH, MAP_TILES_HEIGHT, levelPassable->levelPassable.data);
 
@@ -794,6 +790,9 @@ void enterMap(WarContext* context)
 
     if (!isDemo(context))
         createAudio(context, WAR_MUSIC_00, true);
+
+    // Second cleanup of sizes
+    updateGlobalScale(context);
 }
 
 void leaveMap(WarContext* context)

@@ -28,6 +28,7 @@ void freeScene(WarScene* scene)
 
 void enterScene(WarContext* context)
 {
+    updateGlobalScale(context);
     WarScene* scene = context->scene;
 
     if (!inRange(scene->type, WAR_SCENE_DOWNLOAD, WAR_SCENE_COUNT))

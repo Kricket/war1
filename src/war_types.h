@@ -22,29 +22,41 @@
 #define MEGA_TILE_WIDTH (MINI_TILE_WIDTH*2)
 #define MEGA_TILE_HEIGHT (MINI_TILE_HEIGHT*2)
 
-// size of the map in pixels
-#define MAP_WIDTH (64*MEGA_TILE_WIDTH)
-#define MAP_HEIGHT (64*MEGA_TILE_HEIGHT)
-
 // size of the map in tiles
-#define MAP_TILES_WIDTH (MAP_WIDTH/MEGA_TILE_WIDTH)
-#define MAP_TILES_HEIGHT (MAP_HEIGHT/MEGA_TILE_HEIGHT)
+#define MAP_TILES_WIDTH 64
+#define MAP_TILES_HEIGHT 64
 
-// size of the viewport of the map in pixels
-#define MAP_VIEWPORT_WIDTH 240
-#define MAP_VIEWPORT_HEIGHT 176
+// size of the map in pixels
+#define MAP_WIDTH (MAP_TILES_WIDTH*MEGA_TILE_WIDTH)
+#define MAP_HEIGHT (MAP_TILES_HEIGHT*MEGA_TILE_HEIGHT)
+
+#define INIT_WINDOW_WIDTH 320.0
+#define INIT_WINDOW_HEIGHT 200.0
+#define INIT_ASPECT_RATIO (INIT_WINDOW_WIDTH / INIT_WINDOW_HEIGHT)
+#define DEFAULT_SCALE 2
+
+// Sizes and positions of stuff around the map
+#define LEFT_PANEL_WIDTH 72
+#define LEFT_TOP_PANEL_HEIGHT 72
+#define RIGHT_PANEL_WIDTH 8
+#define TOPBOT_PANEL_HEIGHT 12
+#define LEFT_PANEL_ORIG_HEIGHT (INIT_WINDOW_HEIGHT - LEFT_TOP_PANEL_HEIGHT)
+#define TOPBOT_PANEL_ORIG_WIDTH (INIT_WINDOW_WIDTH - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH)
+#define RIGHT_PANEL_ORIG_HEIGHT INIT_WINDOW_HEIGHT
+#define GOLD_TXT_ORIG_X 207
+#define LUMBER_TXT_ORIG_X 96
+#define BOT_TXT_Y_OFF_FROM_PANEL 5
+#define BOT_ISW_Y_OFF_FROM_PANEL 3
 
 // size of the minimap in pixels
 #define MINIMAP_WIDTH 64
 #define MINIMAP_HEIGHT 64
+#define MINIMAP_PAD_X 3
+#define MINIMAP_PAD_Y 6
 
 // ratio of the minimap and map sizes
 #define MINIMAP_MAP_WIDTH_RATIO ((f32)MINIMAP_WIDTH/MAP_WIDTH)
 #define MINIMAP_MAP_HEIGHT_RATIO ((f32)MINIMAP_HEIGHT/MAP_HEIGHT)
-
-// size of the viewport of the minimap in pixels
-#define MINIMAP_VIEWPORT_WIDTH (MAP_VIEWPORT_WIDTH*MINIMAP_MAP_WIDTH_RATIO)
-#define MINIMAP_VIEWPORT_HEIGHT (MAP_VIEWPORT_HEIGHT*MINIMAP_MAP_HEIGHT_RATIO)
 
 // size of the tileset for the terrain of the maps
 #define TILESET_WIDTH 512
@@ -2393,6 +2405,10 @@ typedef struct
     WarEntityList uiEntities;
 } WarEntityManager;
 
+/**
+ * A WarMap is what is rendered when actually playing the game (as opposed to
+ * the splash screen, mission briefings, etc...)
+ */
 typedef struct
 {
     bool playing;   // Indicates if the map is being played
@@ -2423,12 +2439,18 @@ typedef struct
     rect viewport;
 
     // panels of the ui, in screen coordinates
-    rect leftTopPanel;
-    rect leftBottomPanel;
-    rect topPanel;
+    // LT TTTTTTTTT R
+    // LB           R
+    // LB           R
+    // LB           R
+    // LB           R
+    // LB BBBBBBBBB R
+    rect leftTopPanel; // Top-left, with minimap
+    rect leftBottomPanel; // All left area under minimap
+    rect topPanel; // Thin strip directly above map
     rect bottomPanel;
-    rect rightPanel;
-    rect mapPanel;
+    rect rightPanel; // Entire right side of screen
+    rect mapPanel; // The central area showing the game
     rect minimapPanel;
     rect menuPanel;
     rect messagePanel;
@@ -2488,6 +2510,10 @@ typedef enum
     WAR_SCENE_DOWNLOAD_FAILED,
 } WarSceneDownloadState;
 
+/**
+ * A WarScene is any of the screens that aren't part of the actual game,
+ * like the splash screen, briefing, etc.
+ */
 typedef struct
 {
     WarSceneType type;

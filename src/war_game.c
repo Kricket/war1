@@ -1,14 +1,136 @@
+/**
+ * Indicates that the window size has changed, so that we can do something about it on the next frame.
+ */
+bool windowSizeChanged = true;
+
+void windowResized(GLFWwindow* window, int width, int height)
+{
+    windowSizeChanged = true;
+}
+
+void updateGlobalScale(WarContext* context)
+{
+    if (context->map)
+    {
+        // Reset the scale: we want the central area to stay small
+        context->globalScale = DEFAULT_SCALE;
+
+        s32 width = context->windowWidth / DEFAULT_SCALE;
+        s32 height = context->windowHeight / DEFAULT_SCALE;
+        WarMap* map = context->map;
+
+        // Adjust all the other stuff around the map
+        map->leftTopPanel = recti(0, 0, LEFT_PANEL_WIDTH, LEFT_TOP_PANEL_HEIGHT);
+        map->leftBottomPanel = recti(0, LEFT_TOP_PANEL_HEIGHT, LEFT_PANEL_WIDTH, height - LEFT_TOP_PANEL_HEIGHT);
+
+        map->rightPanel = recti(width - RIGHT_PANEL_WIDTH, 0, RIGHT_PANEL_WIDTH, height);
+        map->topPanel = recti(LEFT_PANEL_WIDTH, 0, width - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH, TOPBOT_PANEL_HEIGHT);
+
+        map->bottomPanel = recti(
+                LEFT_PANEL_WIDTH,
+                height - TOPBOT_PANEL_HEIGHT,
+                width - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH,
+                TOPBOT_PANEL_HEIGHT
+                );
+
+        map->mapPanel = recti(LEFT_PANEL_WIDTH, TOPBOT_PANEL_HEIGHT, width - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH, height - TOPBOT_PANEL_HEIGHT*2);
+
+        map->viewport.width = map->mapPanel.width;
+        map->viewport.height = map->mapPanel.height;
+        map->viewport.x = clamp(map->viewport.x, 0.0f, MAP_WIDTH - map->viewport.width);
+        map->viewport.y = clamp(map->viewport.y, 0.0f, MAP_HEIGHT - map->viewport.height);
+
+        map->minimapPanel = recti(MINIMAP_PAD_X, MINIMAP_PAD_Y, MINIMAP_WIDTH, MINIMAP_HEIGHT);
+
+        WarEntity *entity = findUIEntity(context, "panelLeftTop");
+        if(entity != NULL)
+        {
+            // Adjust the positions, and scale...
+            // The scaling is based around the center of the sprite...so we have to add extra offset to fix that
+            f32 xScale = width / INIT_WINDOW_WIDTH;
+            f32 yScale = height / INIT_WINDOW_HEIGHT;
+
+            entity->transform.position = rectTopLeft(map->leftTopPanel);
+
+            entity = findUIEntity(context, "panelLeftBottom");
+            entity->transform.position = rectTopLeft(map->leftBottomPanel);
+            entity->transform.position.y += (map->leftBottomPanel.height - LEFT_PANEL_ORIG_HEIGHT) / 2;
+            entity->transform.scale = vec2f(1, map->leftBottomPanel.height / LEFT_PANEL_ORIG_HEIGHT);
+
+            entity = findUIEntity(context, "panelTop");
+            entity->transform.position = rectTopLeft(map->topPanel);
+            entity->transform.position.x += (map->topPanel.width - TOPBOT_PANEL_ORIG_WIDTH) / 2;
+            entity->transform.scale = vec2f(map->topPanel.width / TOPBOT_PANEL_ORIG_WIDTH, 1);
+
+            entity = findUIEntity(context, "panelRight");
+            entity->transform.position = rectTopLeft(map->rightPanel);
+            entity->transform.position.y += (map->rightPanel.height - RIGHT_PANEL_ORIG_HEIGHT) / 2;
+            entity->transform.scale = vec2f(1, map->rightPanel.height / RIGHT_PANEL_ORIG_HEIGHT);
+
+            entity = findUIEntity(context, "panelBottom");
+            entity->transform.position = rectTopLeft(map->bottomPanel);
+            entity->transform.position.x += (map->bottomPanel.width - TOPBOT_PANEL_ORIG_WIDTH) / 2;
+            entity->transform.scale = vec2f(map->bottomPanel.width / TOPBOT_PANEL_ORIG_WIDTH, 1);
+
+            entity = findUIEntity(context, "txtGold");
+            entity->transform.position.x = GOLD_TXT_ORIG_X * xScale;
+            entity = findUIEntity(context, "txtWood");
+            entity->transform.position.x = LUMBER_TXT_ORIG_X * xScale;
+
+            entity = findUIEntity(context, "txtStatus");
+            entity->transform.position.y = map->bottomPanel.y + BOT_TXT_Y_OFF_FROM_PANEL;
+            entity = findUIEntity(context, "txtStatusCursor");
+            entity->transform.position.y = map->bottomPanel.y + BOT_TXT_Y_OFF_FROM_PANEL;
+            entity = findUIEntity(context, "txtStatusWood");
+            entity->transform.position.y = map->bottomPanel.y + BOT_TXT_Y_OFF_FROM_PANEL;
+            entity = findUIEntity(context, "txtStatusGold");
+            entity->transform.position.y = map->bottomPanel.y + BOT_TXT_Y_OFF_FROM_PANEL;
+            entity = findUIEntity(context, "imgStatusWood");
+            entity->transform.position.y = map->bottomPanel.y + BOT_ISW_Y_OFF_FROM_PANEL;
+            entity = findUIEntity(context, "imgStatusGold");
+            entity->transform.position.y = map->bottomPanel.y + BOT_TXT_Y_OFF_FROM_PANEL;
+
+            entity = findUIEntity(context, "btnMenu");
+            f32 menuHeight = TOPBOT_PANEL_HEIGHT * yScale;
+            f32 menuOffset = (menuHeight - TOPBOT_PANEL_HEIGHT) / 2;
+            entity->transform.position.y = height - menuHeight - menuOffset;
+            entity->transform.scale = vec2f(1, yScale);
+        }
+    }
+    else if (context->scene)
+    {
+        // Change the scale to make everything fit in the window
+        f32 ar = ((f32)context->windowWidth) / context->windowHeight;
+        if (ar > INIT_ASPECT_RATIO)
+        {
+            context->globalScale = context->windowHeight / INIT_WINDOW_HEIGHT;
+        }
+        else
+        {
+            context->globalScale = context->windowWidth / INIT_WINDOW_WIDTH;
+        }
+    }
+}
+
+void updateWindowSize(WarContext* context)
+{
+    glfwGetWindowSize(context->window, &context->windowWidth, &context->windowHeight);
+    glfwGetFramebufferSize(context->window, &context->framebufferWidth, &context->framebufferHeight);
+    context->devicePixelRatio = (f32)context->framebufferWidth / (f32)context->windowWidth;
+    updateGlobalScale(context);
+}
+
 bool initGame(WarContext* context)
 {
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 
-    context->globalScale = 3;
+    context->globalScale = DEFAULT_SCALE;
     context->globalSpeed = 1;
-    context->originalWindowWidth = 320;
-    context->originalWindowHeight = 200;
+    context->originalWindowWidth = INIT_WINDOW_WIDTH;
+    context->originalWindowHeight = INIT_WINDOW_HEIGHT;
     context->windowWidth = (s32)(context->originalWindowWidth * context->globalScale);
     context->windowHeight = (s32)(context->originalWindowHeight * context->globalScale);
     strcpy(context->windowTitle, "War 1");
@@ -25,9 +147,8 @@ bool initGame(WarContext* context)
         return false;
     }
 
-    glfwGetWindowSize(context->window, &context->windowWidth, &context->windowHeight);
-    glfwGetFramebufferSize(context->window, &context->framebufferWidth, &context->framebufferHeight);
-    context->devicePixelRatio = (f32)context->framebufferWidth / (f32)context->windowWidth;
+    glfwSetWindowSizeCallback(context->window, windowResized);
+    updateWindowSize(context);
 
     glfwMakeContextCurrent(context->window);
 
@@ -46,19 +167,6 @@ bool initGame(WarContext* context)
         glfwTerminate();
 		return false;
 	}
-
-    // context->fb = nvgluCreateFramebuffer(context->gfx,
-    //                                      context->framebufferWidth,
-    //                                      context->framebufferHeight,
-    //                                      NVG_IMAGE_NEAREST);
-
-    // if (!context->fb)
-    // {
-    //     logError("Could not create FBO.\n");
-    //     glfwDestroyWindow(context->window);
-    //     glfwTerminate();
-    //     return false;
-    // }
 
     // init audio
     if (!initAudio(context))
@@ -423,6 +531,12 @@ void updateGame(WarContext* context)
 
 void renderGame(WarContext *context)
 {
+    if (windowSizeChanged)
+    {
+        updateWindowSize(context);
+        windowSizeChanged = false;
+    }
+
     NVGcontext* gfx = context->gfx;
 
     s32 framebufferWidth = context->framebufferWidth;

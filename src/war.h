@@ -86,6 +86,10 @@ vec2 getDirFromArrowKeys(WarContext* context)
     return dir;
 }
 
+/**
+ * If the mouse is down on the edge of the screen, determine which direction to scroll.
+ * If not on the edge of the screen, return a zero vector.
+ */
 vec2 getDirFromMousePos(WarContext* context)
 {
     WarInput* input = &context->input;
@@ -94,12 +98,12 @@ vec2 getDirFromMousePos(WarContext* context)
 
     if (input->pos.x < MAP_EDGE_SCROLL_GAP)
         dir.x = -1;
-    else if (input->pos.x > context->originalWindowWidth - MAP_EDGE_SCROLL_GAP)
+    else if (input->pos.x > context->windowWidth/context->globalScale - MAP_EDGE_SCROLL_GAP)
         dir.x = 1;
 
     if (input->pos.y < MAP_EDGE_SCROLL_GAP)
         dir.y = -1;
-    else if (input->pos.y > context->originalWindowHeight - MAP_EDGE_SCROLL_GAP)
+    else if (input->pos.y > context->windowHeight/context->globalScale - MAP_EDGE_SCROLL_GAP)
         dir.y = 1;
 
     dir = vec2Normalize(dir);
@@ -121,3 +125,5 @@ void printDirection(WarUnitDirection direction)
         default:                       logError("Unkown direction\n");     break;
     }
 }
+
+void updateGlobalScale(WarContext* context);
