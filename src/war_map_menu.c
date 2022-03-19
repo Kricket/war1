@@ -6,6 +6,9 @@ static void setSpeedStr(WarMapSpeed value, char buffer[])
         case WAR_SPEED_SLOW:    strcpy(buffer, "Slow");     break;
         case WAR_SPEED_NORMAL:  strcpy(buffer, "Normal");   break;
         case WAR_SPEED_FASTER:  strcpy(buffer, "Faster");   break;
+        case WAR_SPEED_FASTERER:strcpy(buffer, "MoarGo");   break;
+        case WAR_SPEED_ZIPPY:   strcpy(buffer, "Zippy");    break;
+        case WAR_SPEED_PDQ:     strcpy(buffer, "PDQ");      break;
         case WAR_SPEED_FASTEST: strcpy(buffer, "Fastest");  break;
     }
 }

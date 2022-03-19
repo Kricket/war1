@@ -128,7 +128,7 @@ bool initGame(WarContext* context)
     glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 
     context->globalScale = DEFAULT_SCALE;
-    context->globalSpeed = 1;
+    context->globalSpeed = SPEED_MULTIPLIER;
     context->originalWindowWidth = INIT_WINDOW_WIDTH;
     context->originalWindowHeight = INIT_WINDOW_HEIGHT;
     context->windowWidth = (s32)(context->originalWindowWidth * context->globalScale);
@@ -193,7 +193,7 @@ bool initGame(WarContext* context)
             return false;
         }
 
-        WarScene* scene = createScene(context, WAR_SCENE_BLIZZARD);
+        WarScene* scene = createScene(context, WAR_SCENE_MAIN_MENU);
         setNextScene(context, scene, 0.0f);
     }
     else
@@ -255,7 +255,7 @@ void changeGlobalScale(WarContext* context, f32 deltaScale)
 
 void setGlobalSpeed(WarContext* context, f32 speed)
 {
-    context->globalSpeed = max(speed, 1.0f);
+    context->globalSpeed = max(speed, (f32) SPEED_MULTIPLIER);
     logDebug("set global speed to: %.2f\n", context->globalSpeed);
 }
 
